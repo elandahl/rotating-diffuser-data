@@ -1,0 +1,25 @@
+---
+description: Protect raw experimental data and lab notebook integrity
+alwaysApply: true
+---
+
+# Data and lab notebook protection
+
+## Raw data is immutable
+
+Never modify, overwrite, rename, or delete the raw experimental data files:
+
+- `test*.txt` (Octave autocorrelation exports)
+- `test*.png` (acquisition figures and apparatus photos)
+
+Any analysis must read these files and write results to *new* files (e.g. in an `analysis/` subfolder), leaving the originals untouched.
+
+## Lab notebook edits require express permission
+
+`lab_notebook.md` is the record of the experiment. Do not edit it — including adding details, corrections, or links — unless the user explicitly asks for that specific change in the current request. If an update seems useful, propose it and wait for approval.
+
+## `notes/` is a freely editable scratchpad
+
+Files under `notes/` are working theory, predictions, and possible paper drafts. They are
+not sacrosanct and may be edited, restructured, or rewritten. They are explicitly *not*
+measured results and should never be cited as established fact about this experiment.

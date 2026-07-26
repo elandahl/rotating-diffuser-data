@@ -1,0 +1,1670 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{physics}
+\usepackage{mathtools}
+\usepackage{microtype}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\newcommand{\gtt}{g^{(2)}}
+\newcommand{\Gnorm}{G^{(2)}}
+\newcommand{\avg}[1]{\left\langle #1 \right\rangle}
+\renewcommand{\dd}{\mathrm{d}}
+\newcommand{\ii}{\mathrm{i}}
+
+\title{Initial Scaling Analysis of Dynamic Speckle from a Rotating Diffuser\\
+and Possible Applications in Information Processing and Random Thermal Excitation}
+\author{}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document defines an initial analysis framework for intensity
+autocorrelation data obtained from coherent light scattered by a rotating
+multiple-scattering diffuser. The measured data consist of second-order
+intensity correlation curves at several scattering angles and rotation
+speeds. The first analysis goal is to test whether the temporal correlation
+curves collapse when time delay is replaced by diffuser angular displacement,
+$\Delta\theta=\omega\tau$. A stronger analysis incorporates the tangential
+displacement $R\omega\tau$ and a possible scattering-vector-dependent
+decorrelation length $\ell_c(q)$. The second part outlines possible
+applications in information transmission, random-feature optical computing,
+and spatially random thermal excitation for transport measurements. The
+document is intended both as a physics note and as a specification for
+analysis code.
+\end{abstract}
+
+\tableofcontents
+
+\section{Experimental variables and notation}
+
+A coherent optical beam illuminates a rotating diffuser at radial distance
+$R$ from the axis of rotation. The diffuser rotates at angular speed
+$\omega$. A detector measures scattered intensity at scattering angle
+$\phi$, defined as the angle between the incident and detected wavevectors.
+
+The magnitude of the scattering vector is
+
+\begin{equation}
+    \boxed{
+    q = \frac{4\pi}{\lambda}\sin\left(\frac{\phi}{2}\right)
+    }
+    \label{eq:q_definition}
+\end{equation}
+
+where $\lambda$ is the optical wavelength in the surrounding medium. If the
+beam propagates in a material with refractive index $n$, replace $\lambda$
+by the wavelength in the medium, $\lambda_0/n$, or write
+
+\begin{equation}
+    q = \frac{4\pi n}{\lambda_0}
+    \sin\left(\frac{\phi}{2}\right).
+\end{equation}
+
+The primary measured quantity is the intensity time series
+
+\begin{equation}
+    I(t,q;\omega,R),
+\end{equation}
+
+or, when the diffuser angle is measured,
+
+\begin{equation}
+    I(\theta,q),
+    \qquad
+    \theta(t)=\theta_0+\omega t
+\end{equation}
+
+for uniform rotation.
+
+The present data consist primarily of normalized second-order intensity
+autorrelation functions rather than complete intensity traces.
+
+\section{Definition of the intensity autocorrelation}
+
+For a detector at scattering vector $q$, define
+
+\begin{equation}
+    \gtt(\tau,q;\omega,R)
+    =
+    \frac{
+    \avg{
+    I(t,q;\omega,R)
+    I(t+\tau,q;\omega,R)
+    }_t
+    }{
+    \avg{I(t,q;\omega,R)}_t^2
+    }.
+    \label{eq:g2_definition}
+\end{equation}
+
+For a stationary intensity process,
+
+\begin{equation}
+    \gtt(\tau,q;\omega,R)
+    \rightarrow 1
+\end{equation}
+
+at delays much longer than the correlation time.
+
+It is often useful to remove differences in measured speckle contrast by
+defining
+
+\begin{equation}
+    \boxed{
+    \Gnorm(\tau,q;\omega,R)
+    =
+    \frac{
+    \gtt(\tau,q;\omega,R)-1
+    }{
+    \gtt(0,q;\omega,R)-1
+    }.
+    }
+    \label{eq:G_normalized}
+\end{equation}
+
+Ideally,
+
+\begin{equation}
+    \Gnorm(0,q;\omega,R)=1,
+    \qquad
+    \Gnorm(\tau\rightarrow\infty,q;\omega,R)=0.
+\end{equation}
+
+The normalization in Eq.~\eqref{eq:G_normalized} removes the contrast
+factor from the comparison of decay shapes. The raw value
+$\gtt(0)-1$ should nevertheless be retained and analyzed separately because
+it contains information about detector area, polarization averaging,
+spatial coherence, and the number of unresolved speckle modes.
+
+\section{Candidate functional form}
+
+A useful empirical model is the stretched or compressed exponential
+
+\begin{equation}
+    \gtt(\tau,q;\omega,R)-1
+    =
+    \beta(q,\omega,R)
+    \exp\left[
+    -2
+    \left|
+    \frac{\tau}{\tau_c(q,\omega,R)}
+    \right|^\alpha
+    \right],
+    \label{eq:stretched_g2}
+\end{equation}
+
+where
+
+\begin{itemize}[leftmargin=2em]
+    \item $\beta=\gtt(0)-1$ is the measured correlation contrast,
+    \item $\tau_c$ is a characteristic correlation time,
+    \item $\alpha$ controls the decay shape.
+\end{itemize}
+
+The factor of 2 in Eq.~\eqref{eq:stretched_g2} is conventional when the
+intensity correlation is related to the square of a field correlation.
+The analysis code should allow this factor to be removed or absorbed into
+the definition of $\tau_c$.
+
+The exponent should initially remain a fitted parameter. Common limiting
+cases include
+
+\begin{align}
+    \alpha &= 1
+    &&\text{exponential decay},\\
+    \alpha &= 2
+    &&\text{Gaussian decay}.
+\end{align}
+
+The main scaling tests should not rely exclusively on fitted values of
+$\tau_c$. Full-curve collapse tests use more information and can reveal
+changes in shape, shoulders, oscillations, or multiple timescales.
+
+\section{First prediction: collapse versus \texorpdfstring{$\omega\tau$}{omega tau}}
+
+\subsection{Angular displacement as the governing variable}
+
+During a delay $\tau$, a uniformly rotating diffuser advances through angle
+
+\begin{equation}
+    \Delta\theta = \omega\tau.
+    \label{eq:angular_displacement}
+\end{equation}
+
+If rotation speed changes only the rate at which a fixed sequence of diffuser
+configurations is traversed, then
+
+\begin{equation}
+    I(t,q;\omega,R)
+    =
+    I\left(\theta_0+\omega t,q;R\right).
+\end{equation}
+
+The normalized correlation should then have the form
+
+\begin{equation}
+    \boxed{
+    \Gnorm(\tau,q;\omega,R)
+    =
+    F_{q,R}(\omega\tau).
+    }
+    \label{eq:first_collapse}
+\end{equation}
+
+At fixed $q$ and fixed $R$, curves measured at different $\omega$ should
+collapse when plotted against
+
+\begin{equation}
+    u_\theta=\omega\tau.
+\end{equation}
+
+The correlation time must consequently scale as
+
+\begin{equation}
+    \boxed{
+    \tau_c(q,\omega,R)
+    =
+    \frac{\Delta\theta_c(q,R)}{\omega},
+    }
+    \label{eq:tau_omega}
+\end{equation}
+
+where $\Delta\theta_c(q,R)$ is the characteristic angular displacement
+required to decorrelate the detected intensity.
+
+Thus, at fixed $q$ and $R$,
+
+\begin{equation}
+    \tau_c \propto \omega^{-1}.
+\end{equation}
+
+A plot of $\tau_c$ versus $1/\omega$ should be approximately linear and,
+within uncertainty, should pass through the origin unless there is an
+additional speed-independent decorrelation process.
+
+\subsection{What successful collapse means}
+
+Successful collapse versus $\omega\tau$ supports the following interpretation:
+
+\begin{quote}
+The normalized speckle dynamics are governed primarily by diffuser angular
+displacement. Rotation speed changes the temporal playback rate but does not
+substantially change the underlying normalized stochastic process.
+\end{quote}
+
+This is stronger than finding only $\tau_c\propto 1/\omega$, because collapse
+tests the entire shape of every correlation curve.
+
+It does not prove that intensity traces at different $q$ values are identical
+or mutually predictable. It establishes a scaling law for their normalized
+second-order statistics.
+
+\subsection{Failure of the first collapse}
+
+Systematic failure of collapse may indicate
+
+\begin{itemize}[leftmargin=2em]
+    \item speed-dependent vibration or shaft wobble,
+    \item nonuniform angular velocity,
+    \item mechanical resonances,
+    \item detector bandwidth limitations,
+    \item time-bin or correlator artifacts,
+    \item changing beam position on the diffuser,
+    \item multiple decorrelation processes,
+    \item diffuser heating or deformation,
+    \item insufficient statistical averaging.
+\end{itemize}
+
+Failure is therefore diagnostically useful.
+
+\section{Second prediction: collapse versus tangential displacement}
+
+The material under the illuminated spot moves tangentially through distance
+
+\begin{equation}
+    \Delta x = R\Delta\theta=R\omega\tau.
+    \label{eq:tangential_displacement}
+\end{equation}
+
+If decorrelation is governed by physical translation of the scattering
+structure through the illuminated region, the stronger scaling hypothesis is
+
+\begin{equation}
+    \boxed{
+    \Gnorm(\tau,q;\omega,R)
+    =
+    F_q(R\omega\tau).
+    }
+    \label{eq:spatial_collapse}
+\end{equation}
+
+Introduce a characteristic physical decorrelation length $\ell_c(q)$:
+
+\begin{equation}
+    \boxed{
+    \Gnorm(\tau,q;\omega,R)
+    =
+    F\left(
+    \frac{R\omega\tau}{\ell_c(q)}
+    \right).
+    }
+    \label{eq:general_collapse}
+\end{equation}
+
+The corresponding correlation time is
+
+\begin{equation}
+    \boxed{
+    \tau_c(q,\omega,R)
+    =
+    \frac{\ell_c(q)}{R\omega}.
+    }
+    \label{eq:tau_general}
+\end{equation}
+
+Therefore,
+
+\begin{equation}
+    R\omega\tau_c=\ell_c(q).
+    \label{eq:decorrelation_length}
+\end{equation}
+
+Equation~\eqref{eq:decorrelation_length} provides an operational way to
+extract a physical displacement scale from each measured correlation curve.
+
+At fixed $q$, the following predictions can be tested:
+
+\begin{align}
+    \tau_c &\propto \omega^{-1},\\
+    \tau_c &\propto R^{-1},\\
+    R\omega\tau_c &\approx \text{constant}.
+\end{align}
+
+\section{Possible dependence on scattering vector}
+
+The most conservative analysis does not assume a particular $q$ dependence.
+Instead, determine
+
+\begin{equation}
+    \ell_c(q)=R\omega\tau_c(q,\omega,R)
+    \label{eq:ellq_empirical}
+\end{equation}
+
+from the data and then examine the functional dependence of $\ell_c$ on $q$.
+
+The general collapse variable is
+
+\begin{equation}
+    \boxed{
+    u=
+    \frac{R\omega\tau}{\ell_c(q)}.
+    }
+    \label{eq:master_variable}
+\end{equation}
+
+Candidate models include the following.
+
+\subsection{No measurable \texorpdfstring{$q$}{q} dependence}
+
+If
+
+\begin{equation}
+    \ell_c(q)\approx \ell_0,
+\end{equation}
+
+then
+
+\begin{equation}
+    \Gnorm
+    =
+    F\left(
+    \frac{R\omega\tau}{\ell_0}
+    \right).
+\end{equation}
+
+All scattering channels have the same physical decorrelation displacement,
+although their actual intensity traces may still be different.
+
+\subsection{Inverse-\texorpdfstring{$q$}{q} displacement scale}
+
+A phase-sensitivity argument may suggest
+
+\begin{equation}
+    \ell_c(q)\propto \frac{1}{q}.
+\end{equation}
+
+Then the dimensionless scaling variable is
+
+\begin{equation}
+    u_q=qR\omega\tau,
+    \label{eq:q_scaling}
+\end{equation}
+
+and
+
+\begin{equation}
+    \tau_c\propto \frac{1}{qR\omega}.
+\end{equation}
+
+This model should be treated as a hypothesis, not assumed in advance,
+especially for a multiple-scattering diffuser whose dynamics may not reduce
+to a single-scattering phase factor.
+
+\subsection{General power law}
+
+A more flexible model is
+
+\begin{equation}
+    \ell_c(q)
+    =
+    \ell_0
+    \left(\frac{q}{q_0}\right)^{-\nu},
+    \label{eq:q_power_law}
+\end{equation}
+
+which gives
+
+\begin{equation}
+    \tau_c(q,\omega,R)
+    =
+    \frac{\ell_0}{R\omega}
+    \left(\frac{q}{q_0}\right)^{-\nu}.
+\end{equation}
+
+The master variable becomes
+
+\begin{equation}
+    u
+    =
+    \frac{R\omega\tau}{\ell_0}
+    \left(\frac{q}{q_0}\right)^\nu.
+\end{equation}
+
+The reference value $q_0$ keeps the expression dimensionally consistent.
+The exponent $\nu$ should be estimated from the data.
+
+\section{Revolution-synchronized recurrence}
+
+The first-collapse prediction concerns normalized statistics. A distinct
+question is whether the detailed intensity pattern repeats after one
+revolution.
+
+The revolution period is
+
+\begin{equation}
+    T_{\mathrm{rev}}=\frac{2\pi}{\omega}.
+\end{equation}
+
+Perfect recurrence would imply
+
+\begin{equation}
+    I(t+T_{\mathrm{rev}},q)
+    =
+    I(t,q),
+\end{equation}
+
+or equivalently,
+
+\begin{equation}
+    I(\theta+2\pi,q)=I(\theta,q).
+\end{equation}
+
+Experimentally one expects approximate recurrence,
+
+\begin{equation}
+    I(\theta+2\pi,q)\approx I(\theta,q),
+\end{equation}
+
+limited by photon statistics, laser noise, diffuser runout, mechanical drift,
+and imperfect angle registration.
+
+A useful revolution-to-revolution recurrence coefficient is
+
+\begin{equation}
+    \rho_{\mathrm{rev}}(q)
+    =
+    \frac{
+    \avg{
+    \delta I_r(\theta,q)
+    \delta I_{r+1}(\theta,q)
+    }_\theta
+    }{
+    \sqrt{
+    \avg{\delta I_r^2}_\theta
+    \avg{\delta I_{r+1}^2}_\theta
+    }
+    },
+    \label{eq:rev_correlation}
+\end{equation}
+
+where $r$ labels revolutions.
+
+Collapse and recurrence answer different questions:
+
+\begin{itemize}[leftmargin=2em]
+    \item Collapse tests whether the normalized statistics scale with
+    angular or tangential displacement.
+    \item Recurrence tests whether the detailed diffuser-indexed intensity
+    pattern can be replayed and calibrated.
+\end{itemize}
+
+A system may show good collapse but poor recurrence. It would then provide
+predictable stochastic statistics but not a stable, deterministic sequence
+of optical features.
+
+\section{Recommended initial analysis workflow}
+
+The following sequence is intended as a direct guide for analysis code.
+
+\subsection{Input data}
+
+For each experimental run, store
+
+\begin{itemize}[leftmargin=2em]
+    \item delay values $\tau_i$,
+    \item measured $\gtt(\tau_i)$,
+    \item uncertainty or number of averages, when available,
+    \item scattering angle $\phi$,
+    \item wavelength $\lambda$,
+    \item calculated $q$ from Eq.~\eqref{eq:q_definition},
+    \item angular speed $\omega$,
+    \item beam radius $R$ on the diffuser,
+    \item detector aperture and optical configuration,
+    \item acquisition duration,
+    \item count rate or mean intensity,
+    \item rotation direction.
+\end{itemize}
+
+Use SI units internally:
+
+\begin{equation}
+    q\,[\si{\per\meter}],
+    \quad
+    R\,[\si{\meter}],
+    \quad
+    \omega\,[\si{\radian\per\second}],
+    \quad
+    \tau\,[\si{\second}].
+\end{equation}
+
+\subsection{Preprocessing}
+
+For each curve:
+
+\begin{enumerate}[leftmargin=2em]
+    \item Estimate the long-delay baseline.
+    \item Correct the baseline to unity if justified.
+    \item Calculate $\beta=\gtt(0)-1$.
+    \item Calculate $\Gnorm$ using Eq.~\eqref{eq:G_normalized}.
+    \item Preserve both raw and normalized curves.
+    \item Flag curves that do not reach a stable long-delay baseline.
+\end{enumerate}
+
+Do not force the final measured point to equal one. Estimate the baseline
+from a delay region that appears statistically stationary.
+
+\subsection{Individual-curve fits}
+
+Fit each curve to Eq.~\eqref{eq:stretched_g2}, initially allowing
+
+\begin{equation}
+    \beta,\quad \tau_c,\quad \alpha,\quad \text{and baseline}
+\end{equation}
+
+to vary.
+
+Also compare restricted models with $\alpha=1$ and $\alpha=2$.
+
+Report
+
+\begin{itemize}[leftmargin=2em]
+    \item fitted parameters,
+    \item parameter uncertainties,
+    \item residuals,
+    \item reduced chi-squared or another goodness-of-fit measure,
+    \item information criteria for competing models,
+    \item the delay range included in the fit.
+\end{itemize}
+
+\subsection{First-collapse plot}
+
+For each fixed $q$ and $R$, plot
+
+\begin{equation}
+    \Gnorm
+    \quad \text{versus} \quad
+    \omega\tau.
+\end{equation}
+
+The plotting code should show all rotation speeds on the same axes.
+
+Quantify collapse error by interpolating the curves onto a shared
+dimensionless grid and calculating, for example,
+
+\begin{equation}
+    \chi^2_{\mathrm{collapse}}
+    =
+    \frac{1}{N_{\mathrm{tot}}}
+    \sum_{j,i}
+    \frac{
+    \left[
+    \Gnorm_j(u_i)-\overline{\Gnorm}(u_i)
+    \right]^2
+    }{
+    \sigma_{j,i}^2
+    },
+    \label{eq:collapse_error}
+\end{equation}
+
+where $j$ labels runs and $\overline{\Gnorm}$ is the estimated master curve.
+
+If reliable pointwise uncertainties are unavailable, use an unweighted RMS
+collapse error and estimate uncertainty by bootstrap resampling.
+
+\subsection{Correlation-time scaling}
+
+At fixed $q$ and $R$, fit
+
+\begin{equation}
+    \tau_c=\frac{A}{\omega}+B.
+\end{equation}
+
+The ideal angular-displacement model predicts
+
+\begin{equation}
+    B=0,
+    \qquad
+    A=\Delta\theta_c.
+\end{equation}
+
+A statistically significant nonzero $B$ may indicate an additional
+timescale or a systematic analysis offset.
+
+\subsection{Tangential-displacement collapse}
+
+When multiple $R$ values are available, plot
+
+\begin{equation}
+    \Gnorm
+    \quad \text{versus} \quad
+    R\omega\tau.
+\end{equation}
+
+Calculate
+
+\begin{equation}
+    \ell_c(q)=R\omega\tau_c
+\end{equation}
+
+for each run. At fixed $q$, test whether the extracted values agree within
+uncertainty.
+
+\subsection{\texorpdfstring{$q$}{q}-dependent collapse}
+
+Plot
+
+\begin{equation}
+    \ell_c(q)=R\omega\tau_c
+\end{equation}
+
+against $q$. Compare at least
+
+\begin{align}
+    \ell_c(q)&=\ell_0,\\
+    \ell_c(q)&=\frac{A}{q},\\
+    \ell_c(q)&=\ell_0\left(\frac{q}{q_0}\right)^{-\nu}.
+\end{align}
+
+Only after estimating $\ell_c(q)$ should all data be plotted against
+
+\begin{equation}
+    u=\frac{R\omega\tau}{\ell_c(q)}.
+\end{equation}
+
+The strongest collapse claim would be
+
+\begin{equation}
+    \boxed{
+    \Gnorm(\tau,q;\omega,R)
+    =
+    F\left(
+    \frac{R\omega\tau}{\ell_c(q)}
+    \right)
+    }
+\end{equation}
+
+over the measured ranges of $q$, $\omega$, and $R$.
+
+\subsection{Useful plots}
+
+The initial analysis package should generate:
+
+\begin{enumerate}[leftmargin=2em]
+    \item Raw $\gtt(\tau)$ curves grouped by $q$.
+    \item Normalized $\Gnorm(\tau)$ curves.
+    \item Fits and fit residuals.
+    \item $\tau_c$ versus $1/\omega$ at fixed $q$ and $R$.
+    \item $\Gnorm$ versus $\omega\tau$.
+    \item $\Gnorm$ versus $R\omega\tau$, when $R$ varies.
+    \item $\ell_c(q)=R\omega\tau_c$ versus $q$.
+    \item Global collapse versus $R\omega\tau/\ell_c(q)$.
+    \item $\alpha$ versus $q$, $\omega$, and $R$.
+    \item $\beta$ versus $q$, $\omega$, and $R$.
+    \item Collapse residuals versus scaled delay.
+\end{enumerate}
+
+\section{Autocorrelation, spectra, and information}
+
+Define the centered intensity fluctuation
+
+\begin{equation}
+    \delta I(t,q)=I(t,q)-\avg{I(t,q)}.
+\end{equation}
+
+Its autocovariance is
+
+\begin{equation}
+    C_{qq}(\tau)
+    =
+    \avg{
+    \delta I(t,q)
+    \delta I(t+\tau,q)
+    }.
+\end{equation}
+
+It is related to $\gtt$ by
+
+\begin{equation}
+    C_{qq}(\tau)
+    =
+    \avg{I(q)}^2
+    \left[
+    \gtt(\tau,q)-1
+    \right].
+\end{equation}
+
+By the Wiener--Khinchin theorem, the Fourier transform of the
+autocovariance is the intensity-fluctuation power spectral density:
+
+\begin{equation}
+    S_{qq}(f)
+    =
+    \int_{-\infty}^{\infty}
+    C_{qq}(\tau)
+    e^{-\ii 2\pi f\tau}
+    \dd\tau.
+    \label{eq:wiener_khinchin}
+\end{equation}
+
+Thus $\gtt(\tau,q)$ determines the spectral power at that detector, apart
+from normalization and the DC contribution.
+
+However, it does not determine the complex Fourier phase of the original
+intensity trace. Many different intensity realizations can have the same
+autocorrelation and power spectrum.
+
+Consequently, universal autocorrelation scaling can coexist with a large
+information-bearing space:
+
+\begin{quote}
+The family of signals may have a simple low-dimensional statistical
+description while the individual intensity realizations remain complex,
+distinct, and potentially high dimensional.
+\end{quote}
+
+\section{Multiple detectors and cross-correlation}
+
+For detectors at $q_1$ and $q_2$, define
+
+\begin{align}
+    I_1(t)&=I(t,q_1),\\
+    I_2(t)&=I(t,q_2).
+\end{align}
+
+The cross-covariance is
+
+\begin{equation}
+    C_{12}(\tau)
+    =
+    \avg{
+    \delta I_1(t)
+    \delta I_2(t+\tau)
+    }.
+    \label{eq:cross_covariance}
+\end{equation}
+
+The normalized cross-correlation is
+
+\begin{equation}
+    \rho_{12}(\tau)
+    =
+    \frac{
+    C_{12}(\tau)
+    }{
+    \sqrt{
+    C_{11}(0)C_{22}(0)
+    }
+    }.
+    \label{eq:normalized_cross}
+\end{equation}
+
+The Fourier transform gives the cross-spectrum
+
+\begin{equation}
+    S_{12}(f)
+    =
+    \int_{-\infty}^{\infty}
+    C_{12}(\tau)e^{-\ii2\pi f\tau}\dd\tau.
+\end{equation}
+
+Unlike an autospectrum, $S_{12}$ is generally complex. Its phase describes
+the relative spectral phase between the two detector signals.
+
+A useful normalized quantity is the magnitude-squared coherence,
+
+\begin{equation}
+    \gamma_{12}^2(f)
+    =
+    \frac{
+    |S_{12}(f)|^2
+    }{
+    S_{11}(f)S_{22}(f)
+    },
+    \qquad
+    0\leq\gamma_{12}^2\leq 1.
+    \label{eq:coherence}
+\end{equation}
+
+Low coherence indicates that the detectors carry largely distinct
+second-order information at that frequency. High coherence indicates strong
+redundancy or a common physical component.
+
+Two autocorrelation functions may collapse to the same master form after
+rescaling even while the detector signals themselves are not identical.
+Collapse concerns the form of the statistics. Cross-correlation concerns
+the shared information between channels.
+
+\section{Lag direction and causal interpretation}
+
+The cross-correlation in Eq.~\eqref{eq:cross_covariance} is directional in
+its lag convention:
+
+\begin{equation}
+    C_{12}(\tau)
+    =
+    \avg{
+    \delta I_1(t)
+    \delta I_2(t+\tau)
+    }.
+\end{equation}
+
+A peak at positive $\tau$ means that variations at detector 1 tend to
+precede similar variations at detector 2 by $\tau$. A peak at negative
+$\tau$ means the opposite ordering.
+
+For example, if
+
+\begin{equation}
+    I_2(t)\approx aI_1(t-\tau_d)+\eta(t),
+\end{equation}
+
+then the cross-correlation will generally peak near $\tau=\tau_d$, subject
+to the sign convention.
+
+This may reveal
+
+\begin{itemize}[leftmargin=2em]
+    \item propagation delays,
+    \item speckle translation across detector positions,
+    \item ordered traversal of scattering channels,
+    \item thermal transport delays,
+    \item detector or electronics delays,
+    \item common-input responses with different transfer functions.
+\end{itemize}
+
+A nonzero-lag peak does not by itself prove physical causality. Common
+drivers, filtering, periodicity, or geometric motion can produce similar
+signatures. A causal claim requires a controlled perturbation, known timing,
+or an explicit dynamical model.
+
+With a driven system, it is useful to correlate each detector with the
+known drive $u(t)$:
+
+\begin{equation}
+    C_{uI_m}(\tau)
+    =
+    \avg{
+    \delta u(t)
+    \delta I_m(t+\tau)
+    }.
+    \label{eq:input_output_cross}
+\end{equation}
+
+The known drive supplies a causal time origin. The sign and shape of
+$C_{uI_m}$ can then be interpreted as an input--output response more
+reliably than the detector--detector correlation alone.
+
+\section{Part II: Motivation and possible applications}
+
+\section{Random optical feature generation}
+
+Let an optical input be represented by a vector $\bm{x}$. It may encode
+
+\begin{itemize}[leftmargin=2em]
+    \item amplitudes in several spatial modes,
+    \item an image or spatial mask,
+    \item phases imposed by an SLM,
+    \item several wavelength channels,
+    \item polarization components,
+    \item several temporal input channels.
+\end{itemize}
+
+For a diffuser angle $\theta$ and output channel $q_m$, a schematic field
+model is
+
+\begin{equation}
+    E(\theta,q_m;\bm{x})
+    =
+    \sum_j T_{mj}(\theta)x_j,
+\end{equation}
+
+where $T_{mj}(\theta)$ is an angle-dependent optical transfer coefficient.
+The measured intensity is
+
+\begin{equation}
+    I(\theta,q_m;\bm{x})
+    =
+    \left|
+    \sum_j T_{mj}(\theta)x_j
+    \right|^2.
+    \label{eq:intensity_feature}
+\end{equation}
+
+Linear optical propagation followed by square-law detection produces a
+nonlinear feature map of the input.
+
+A finite feature vector may be assembled from several detector channels and
+several diffuser angles:
+
+\begin{equation}
+    \bm{f}(\bm{x})
+    =
+    \left\{
+    I(\theta_n,q_m;\bm{x})
+    \right\}_{n,m}.
+    \label{eq:feature_vector}
+\end{equation}
+
+A trained linear readout can then form
+
+\begin{equation}
+    \widehat{\bm{y}}
+    =
+    W\bm{f}(\bm{x})+\bm{b}.
+\end{equation}
+
+The diffuser performs complicated optical mixing. Only the electronic
+readout needs to be trained.
+
+\subsection{Why collapse matters for computing}
+
+If
+
+\begin{equation}
+    \Gnorm(\tau,q;\omega,R)
+    =
+    F\left(
+    \frac{R\omega\tau}{\ell_c(q)}
+    \right),
+\end{equation}
+
+then the normalized feature dynamics are governed by a predictable scaling
+law. The feature-refresh time is approximately
+
+\begin{equation}
+    \tau_c(q)
+    =
+    \frac{\ell_c(q)}{R\omega}.
+\end{equation}
+
+The approximate feature-refresh rate is therefore
+
+\begin{equation}
+    \mathcal{R}_f(q)
+    \sim
+    \frac{1}{\tau_c(q)}
+    =
+    \frac{R\omega}{\ell_c(q)}.
+\end{equation}
+
+Changing $\omega$ changes the rate at which the diffuser configurations are
+traversed. If recurrence is strong, the device resembles a cyclic bank of
+reproducible random transformations indexed by diffuser angle.
+
+Collapse does not prove high computational dimension. That requires
+measurements across multiple angles, detectors, and inputs, followed by
+covariance, singular-value, mutual-information, or task-performance
+analysis.
+
+\section{Possible application to information transmission}
+
+A controlled diffuser can produce a reproducible, complicated carrier
+indexed by $\theta$ and $q$. Information could be encoded in the incident
+field $\bm{x}$ and recovered from one or more scattered intensity streams.
+
+Possible architectures include:
+
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{Calibrated random projection.}
+    The receiver learns the map between input symbols and output intensity
+    features.
+
+    \item \textbf{Spread-spectrum-like encoding.}
+    An input symbol is distributed over many angular positions, detector
+    channels, or spectral components.
+
+    \item \textbf{Challenge--response transmission.}
+    The diffuser configuration acts as a physical key or challenge variable.
+
+    \item \textbf{Low-detector-count reception.}
+    One or a few photon-counting detectors acquire sequential angular
+    features rather than a full camera image.
+
+    \item \textbf{Joint spatial and temporal multiplexing.}
+    Several $q$ channels are detected in parallel while rotation supplies
+    sequential features.
+\end{enumerate}
+
+The information rate cannot be inferred from $\tau_c$ alone. It also depends
+on
+
+\begin{itemize}[leftmargin=2em]
+    \item detected photon rate,
+    \item shot noise and background,
+    \item recurrence fidelity,
+    \item cross-channel redundancy,
+    \item input alphabet,
+    \item calibration drift,
+    \item detector bandwidth,
+    \item the conditioning of the input-to-feature map.
+\end{itemize}
+
+A first communication experiment could compare classification error for
+several imposed input patterns as the number of detector channels and
+angular samples increases.
+
+\section{Fiber-coupler architectures}
+
+A nominal $2\times2$ fiber coupler has four physical ports. Depending on how
+it is used, it can split, combine, or interfere two optical fields.
+
+Several arrangements may be useful.
+
+\subsection{Signal and reference splitting}
+
+One branch can monitor incident laser power while another enters the
+diffuser experiment. Correlation with the reference detector can remove or
+identify common laser fluctuations.
+
+Let $I_{\mathrm{ref}}(t)$ be the reference signal. Then
+
+\begin{equation}
+    C_{\mathrm{ref},m}(\tau)
+    =
+    \avg{
+    \delta I_{\mathrm{ref}}(t)
+    \delta I_m(t+\tau)
+    }.
+\end{equation}
+
+This distinguishes input-source noise from diffuser-generated dynamics.
+
+\subsection{Two scattered channels}
+
+Fibers positioned at $q_1$ and $q_2$ can feed two detectors directly or be
+routed through a coupler. Direct detection preserves separate intensity
+streams. A coupler can instead form optical sums and differences before
+detection.
+
+\subsection{Interferometric combination}
+
+If coherent fields $E_1$ and $E_2$ enter the two input ports of an ideal
+balanced coupler, the output intensities contain interference terms:
+
+\begin{align}
+    I_+ &\propto |E_1+E_2|^2,\\
+    I_- &\propto |E_1-E_2|^2,
+\end{align}
+
+up to coupler phase conventions.
+
+Their difference isolates a field-interference quadrature:
+
+\begin{equation}
+    I_+-I_-
+    \propto
+    4\operatorname{Re}\left(E_1E_2^*\right).
+\end{equation}
+
+With an imposed phase shift, the complementary quadrature can be measured.
+Such a configuration can recover field-sensitive information that is absent
+from independent intensity measurements, provided coherence, polarization,
+and path stability are maintained.
+
+A simple intensity cross-correlator and an optical interferometer are not
+equivalent. The first measures statistical relations between detected
+intensities. The second mixes optical fields before square-law detection.
+
+\subsection{Balanced detection}
+
+Two output ports of a balanced coupler can be sent to a balanced detector.
+This may suppress common-mode intensity noise and enhance a weak modulated
+or interferometric component.
+
+For photon-counting operation, detector dead time, afterpulsing, timing
+jitter, and accidental coincidences must be included in the analysis.
+
+\section{Randomly driven thermal fields}
+
+A dynamic speckle field can also serve as a spatially and temporally random
+heating pattern. Let the absorbed optical power density be
+
+\begin{equation}
+    P(\bm{r},t)
+    =
+    A(\bm{r})I_{\mathrm{pump}}(\bm{r},t),
+\end{equation}
+
+where $A(\bm{r})$ represents optical absorption.
+
+For small perturbations, the temperature response can be written as a
+linear convolution,
+
+\begin{equation}
+    \Delta T(\bm{r},t)
+    =
+    \int_{-\infty}^{t}\dd t'
+    \int\dd^d r'\,
+    \chi_T(\bm{r}-\bm{r}',t-t')
+    P(\bm{r}',t'),
+    \label{eq:thermal_response}
+\end{equation}
+
+where $\chi_T$ is a causal thermal response function.
+
+In Fourier space,
+
+\begin{equation}
+    \Delta T(\bm{k},\Omega)
+    =
+    \chi_T(\bm{k},\Omega)
+    P(\bm{k},\Omega).
+    \label{eq:thermal_transfer}
+\end{equation}
+
+For ordinary Fourier diffusion in a homogeneous material,
+
+\begin{equation}
+    \left(
+    -\ii\Omega C+\kappa k^2
+    \right)
+    \Delta T(\bm{k},\Omega)
+    =
+    P(\bm{k},\Omega),
+\end{equation}
+
+so
+
+\begin{equation}
+    \chi_T(\bm{k},\Omega)
+    =
+    \frac{1}{
+    \kappa k^2-\ii\Omega C
+    },
+    \label{eq:diffusive_chi}
+\end{equation}
+
+where $C$ is volumetric heat capacity and $\kappa$ is thermal conductivity.
+
+The characteristic diffusive decay time at spatial frequency $k$ is
+
+\begin{equation}
+    \tau_{\mathrm{th}}(k)
+    =
+    \frac{C}{\kappa k^2}
+    =
+    \frac{1}{Dk^2},
+\end{equation}
+
+where $D=\kappa/C$ is thermal diffusivity.
+
+A random heating field excites many $\bm{k}$ and $\Omega$ components
+simultaneously. If the incident random field is measured or reproducible,
+cross-correlation between the drive and the response can estimate the
+thermal transfer function over a range of spatial and temporal frequencies.
+
+\section{Random transient-grating transport measurements}
+
+A conventional transient-grating experiment uses a spatially periodic
+excitation with a selected grating wavevector. A random-transient-grating
+approach would instead use a known or measured random spatial pattern that
+contains a broad distribution of wavevectors.
+
+Let
+
+\begin{equation}
+    P(\bm{r},t)
+\end{equation}
+
+be the random optical heating field and let
+
+\begin{equation}
+    Y_m(t)
+\end{equation}
+
+be a probe observable measured at detector $m$. The observable might be
+
+\begin{itemize}[leftmargin=2em]
+    \item diffracted probe intensity,
+    \item transient reflectivity,
+    \item transient transmission,
+    \item optical phase,
+    \item surface displacement,
+    \item x-ray diffuse or Bragg scattering,
+    \item acoustic response,
+    \item electrical response coupled to temperature.
+\end{itemize}
+
+For a linear system,
+
+\begin{equation}
+    Y_m(t)
+    =
+    \int_{-\infty}^{t}
+    h_m(t-t')u(t')\dd t'
+    +
+    \eta_m(t),
+    \label{eq:linear_system}
+\end{equation}
+
+where $u(t)$ is a measured drive channel and $h_m$ is the causal impulse
+response.
+
+The input--output cross-spectrum is
+
+\begin{equation}
+    S_{uY_m}(\Omega)
+    =
+    H_m(\Omega)S_{uu}(\Omega)
+\end{equation}
+
+when the additive noise is uncorrelated with the drive. Therefore,
+
+\begin{equation}
+    \boxed{
+    H_m(\Omega)
+    =
+    \frac{
+    S_{uY_m}(\Omega)
+    }{
+    S_{uu}(\Omega)
+    }
+    }
+    \label{eq:transfer_estimator}
+\end{equation}
+
+wherever the drive spectrum has adequate power and coherence.
+
+This is a direct motivation for recording a reference copy of the random
+drive. A four-port fiber-coupler arrangement could send one portion of the
+pump-derived signal to a reference detector while another portion drives
+the sample.
+
+\subsection{Possible transport regimes}
+
+A broadband random thermal drive could probe:
+
+\begin{itemize}[leftmargin=2em]
+    \item ordinary diffusive thermal transport,
+    \item multiple thermal diffusion lengths in layered materials,
+    \item anisotropic in-plane transport,
+    \item interface thermal conductance,
+    \item coupled carrier and phonon transport,
+    \item thermoelastic acoustic generation,
+    \item hydrodynamic or quasiballistic departures from Fourier diffusion,
+    \item spatially heterogeneous transport,
+    \item nonlinear response as drive amplitude increases.
+\end{itemize}
+
+The advantage is not that the random drive creates new thermal physics. The
+advantage is that it may excite many spatial and temporal modes in one
+measurement and allow them to be separated statistically through known
+input correlations.
+
+\subsection{Multiple-detector thermal measurements}
+
+Several response detectors may be placed at different spatial positions,
+scattering vectors, or probe geometries. Their signals can be written
+
+\begin{equation}
+    \bm{Y}(t)
+    =
+    \begin{pmatrix}
+    Y_1(t)\\
+    Y_2(t)\\
+    \vdots\\
+    Y_M(t)
+    \end{pmatrix}.
+\end{equation}
+
+The input--output correlation matrix is
+
+\begin{equation}
+    \bm{C}_{uY}(\tau)
+    =
+    \begin{pmatrix}
+    C_{uY_1}(\tau)\\
+    C_{uY_2}(\tau)\\
+    \vdots\\
+    C_{uY_M}(\tau)
+    \end{pmatrix}.
+\end{equation}
+
+The detector--detector matrix is
+
+\begin{equation}
+    \bm{C}_{YY}(\tau)
+    =
+    \left[
+    C_{Y_mY_n}(\tau)
+    \right]_{m,n}.
+\end{equation}
+
+The asymmetry between positive and negative lag may reveal ordered response
+or propagation. The known drive is still needed to assign causal direction
+reliably.
+
+\section{Relation to fluctuation--dissipation ideas}
+
+The fluctuation--dissipation theorem relates equilibrium fluctuations to
+linear response under specific conditions. Schematically, a susceptibility
+or dissipative response can be related to an equilibrium correlation
+spectrum.
+
+For a classical variable $A$ near thermal equilibrium, one commonly
+encounters relations of the form
+
+\begin{equation}
+    S_{AA}(\Omega)
+    \propto
+    \frac{k_{\mathrm B}T}{\Omega}
+    \operatorname{Im}\chi_{AA}(\Omega),
+    \label{eq:fdt_schematic}
+\end{equation}
+
+with the exact prefactors and symmetrization depending on conventions and
+on the variables involved.
+
+The proposed rotating-speckle experiment is not automatically an
+application of the fluctuation--dissipation theorem. The optical intensity
+fluctuations are externally generated, and a laser-heated sample is
+generally driven away from equilibrium.
+
+The closer analogy is system identification with stochastic excitation:
+
+\begin{equation}
+    \text{known random drive}
+    +
+    \text{drive--response cross-correlation}
+    \longrightarrow
+    \text{linear response function}.
+\end{equation}
+
+This resembles the logic of fluctuation--dissipation methods because
+correlations reveal response functions, but the random drive is imposed
+rather than arising from spontaneous thermal equilibrium fluctuations.
+
+The distinction should remain explicit:
+
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Equilibrium FDT:} spontaneous equilibrium fluctuations
+    determine linear response.
+    \item \textbf{Stochastic system identification:} a measured external
+    random drive is used to determine the causal response.
+\end{itemize}
+
+If the optical perturbation is weak enough for linear response and the
+unperturbed sample remains near equilibrium, the measured response function
+can still be compared with equilibrium transport theory. Strong driving,
+nonlinear response, or a nonequilibrium steady state requires a more general
+framework.
+
+\section{Proposed staged experimental program}
+
+\subsection{Stage 1: scaling of single-detector autocorrelations}
+
+Measure $\gtt(\tau)$ for several
+
+\begin{equation}
+    q,\qquad \omega,\qquad R.
+\end{equation}
+
+Test, in order,
+
+\begin{align}
+    \Gnorm &= F_{q,R}(\omega\tau),\\
+    \Gnorm &= F_q(R\omega\tau),\\
+    \Gnorm &= F\left(
+    \frac{R\omega\tau}{\ell_c(q)}
+    \right).
+\end{align}
+
+\subsection{Stage 2: recurrence}
+
+Add an angular encoder or index pulse. Test
+
+\begin{equation}
+    I(\theta+2\pi,q)\approx I(\theta,q)
+\end{equation}
+
+and measure recurrence over many revolutions.
+
+\subsection{Stage 3: two-detector correlations}
+
+Measure
+
+\begin{equation}
+    C_{11}(\tau),
+    \qquad
+    C_{22}(\tau),
+    \qquad
+    C_{12}(\tau).
+\end{equation}
+
+Determine whether the two autocorrelations obey the same scaled master law
+and how much independent information remains in the cross-spectrum and
+coherence.
+
+\subsection{Stage 4: reference-channel measurement}
+
+Split off a reference signal with a fiber coupler or beamsplitter. Measure
+
+\begin{equation}
+    C_{\mathrm{ref},1}(\tau),
+    \qquad
+    C_{\mathrm{ref},2}(\tau).
+\end{equation}
+
+Use these measurements to separate source fluctuations from diffuser and
+sample dynamics.
+
+\subsection{Stage 5: controlled input discrimination}
+
+Apply several known optical inputs $\bm{x}$ and test whether features derived
+from
+
+\begin{equation}
+    I(\theta,q_m;\bm{x})
+\end{equation}
+
+improve discrimination or parameter estimation.
+
+Compare
+
+\begin{itemize}[leftmargin=2em]
+    \item raw angle-binned intensities,
+    \item angular Fourier coefficients,
+    \item autocorrelation features,
+    \item auto- and cross-correlation features,
+    \item reduced features selected by SVD or regularization.
+\end{itemize}
+
+\subsection{Stage 6: driven thermal response}
+
+Use the measured or calibrated random optical field as a heating drive.
+Measure one or more thermal or structural responses and estimate transfer
+functions using input--output cross-correlations.
+
+\section{Primary initial predictions}
+
+The initial data-analysis code should treat the following as explicit
+testable predictions.
+
+\begin{enumerate}[leftmargin=2em]
+    \item At fixed $q$ and $R$,
+    \begin{equation}
+        \tau_c\propto\frac{1}{\omega}.
+    \end{equation}
+
+    \item At fixed $q$ and $R$, normalized curves collapse as
+    \begin{equation}
+        \Gnorm(\tau,q;\omega,R)
+        =
+        F_{q,R}(\omega\tau).
+    \end{equation}
+
+    \item If tangential displacement is the governing coordinate,
+    \begin{equation}
+        \tau_c\propto\frac{1}{R\omega}
+    \end{equation}
+    and
+    \begin{equation}
+        \Gnorm
+        =
+        F_q(R\omega\tau).
+    \end{equation}
+
+    \item The empirical decorrelation length is
+    \begin{equation}
+        \ell_c(q)=R\omega\tau_c.
+    \end{equation}
+
+    \item A possible global master law is
+    \begin{equation}
+        \Gnorm
+        =
+        F\left(
+        \frac{R\omega\tau}{\ell_c(q)}
+        \right).
+    \end{equation}
+
+    \item A possible, but not assumed, special case is
+    \begin{equation}
+        \ell_c(q)\propto q^{-1},
+    \end{equation}
+    leading to
+    \begin{equation}
+        \Gnorm=F(qR\omega\tau).
+    \end{equation}
+
+    \item The fitted decay exponent $\alpha$ should be approximately
+    invariant under a true one-parameter collapse. A systematic dependence
+    of $\alpha$ on $\omega$, $R$, or $q$ indicates that the curve shape is
+    changing and that a simple rescaling is incomplete.
+
+    \item Collapse of autocorrelations does not imply that intensity traces
+    at different $q$ are identical. This must be tested with cross-correlation,
+    coherence, covariance-rank, or mutual-information measurements.
+\end{enumerate}
+
+\section{References}
+
+\begin{thebibliography}{99}
+
+\bibitem{GoodmanSpeckle}
+J. W. Goodman,
+\textit{Speckle Phenomena in Optics: Theory and Applications},
+2nd ed. (SPIE Press, Bellingham, 2020).
+
+\bibitem{Saleh1975}
+B. E. A. Saleh, J. Tavolacci, and D. E. Soper,
+``Speckle correlation measurement of the velocity of a small rotating
+diffuse object,''
+\textit{Applied Optics} \textbf{14}, 2344--2349 (1975).
+\href{https://doi.org/10.1364/AO.14.002344}
+{doi:10.1364/AO.14.002344}.
+
+\bibitem{Takai1980}
+N. Takai, T. Iwai, and T. Asakura,
+``Real-time velocity measurement for a diffuse object using
+zero-crossings of speckle intensity fluctuations,''
+\textit{Journal of the Optical Society of America} \textbf{70},
+450--455 (1980).
+\href{https://doi.org/10.1364/JOSA.70.000450}
+{doi:10.1364/JOSA.70.000450}.
+
+\bibitem{Churnside1982}
+J. H. Churnside,
+``Speckle from a rotating diffuse object,''
+\textit{Journal of the Optical Society of America} \textbf{72},
+1464--1469 (1982).
+\href{https://doi.org/10.1364/JOSA.72.001464}
+{doi:10.1364/JOSA.72.001464}.
+
+\bibitem{Yoshimura1986}
+T. Yoshimura, K. Kato, and K. Nakagawa,
+``Rotational and boiling motion of speckles in a two-lens imaging
+system,''
+\textit{Journal of the Optical Society of America A} \textbf{3},
+1018--1024 (1986).
+\href{https://doi.org/10.1364/JOSAA.3.001018}
+{doi:10.1364/JOSAA.3.001018}.
+
+\bibitem{Partlo1993}
+W. N. Partlo, I. V. Fomenkov, R. M. Ness, and R. I. Sandstrom,
+``Diffuser speckle model: application to multiple moving diffuser
+laser-beam homogenizers,''
+\textit{Applied Optics} \textbf{32}, 3009--3015 (1993).
+\href{https://doi.org/10.1364/AO.32.003009}
+{doi:10.1364/AO.32.003009}.
+
+\bibitem{Wiener}
+N. Wiener,
+``Generalized harmonic analysis,''
+\textit{Acta Mathematica} \textbf{55}, 117--258 (1930).
+
+\bibitem{Khinchin}
+A. Khintchine,
+``Korrelationstheorie der station\"aren stochastischen Prozesse,''
+\textit{Mathematische Annalen} \textbf{109}, 604--615 (1934).
+
+\bibitem{EichlerTG}
+H. J. Eichler, P. G\"unter, and D. W. Pohl,
+\textit{Laser-Induced Dynamic Gratings}
+(Springer, Berlin, 1986).
+
+\bibitem{JohnsonTG}
+J. A. Johnson, A. A. Maznev, J. Cuffe, J. K. Eliason,
+A. J. Minnich, T. Kehoe, C. M. Sotomayor Torres, G. Chen,
+and K. A. Nelson,
+``Direct measurement of room-temperature nondiffusive thermal
+transport over micron distances in a silicon membrane,''
+\textit{Physical Review Letters} \textbf{110}, 025901 (2013).
+\href{https://doi.org/10.1103/PhysRevLett.110.025901}
+{doi:10.1103/PhysRevLett.110.025901}.
+
+\bibitem{Song2024}
+Q. Song \textit{et al.},
+``Probing carrier and phonon transport in semiconductors all at once
+through frequency-domain transient grating spectroscopy,''
+\textit{Physical Review Applied} \textbf{21}, 034044 (2024).
+\href{https://doi.org/10.1103/PhysRevApplied.21.034044}
+{doi:10.1103/PhysRevApplied.21.034044}.
+
+\bibitem{Kubo}
+R. Kubo,
+``The fluctuation-dissipation theorem,''
+\textit{Reports on Progress in Physics} \textbf{29}, 255--284 (1966).
+\href{https://doi.org/10.1088/0034-4885/29/1/306}
+{doi:10.1088/0034-4885/29/1/306}.
+
+\bibitem{BendatPiersol}
+J. S. Bendat and A. G. Piersol,
+\textit{Random Data: Analysis and Measurement Procedures},
+4th ed. (Wiley, Hoboken, 2010).
+
+\bibitem{Ljung}
+L. Ljung,
+\textit{System Identification: Theory for the User},
+2nd ed. (Prentice Hall, Upper Saddle River, 1999).
+
+\end{thebibliography}
+
+\end{document}
