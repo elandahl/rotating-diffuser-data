@@ -6,7 +6,11 @@ Fig 1: three exemplary erfc(ln τ) fits, stacked horizontally
 Fig 2: 1/τ₅₀ vs ω with floated-intercept linear fits only
 Fig 3: slopes (floated intercept) vs sinθ; 0° shown but excluded from ∝sinθ guide
 
-Writes PDF+PNG into paper/figures/. Raw data untouched.
+Writes PDF figures into paper/figures/ (Overleaf-ready). Intermediate CSV goes
+under analysis/scaling/. Raw data untouched.
+
+Run from repo root:
+  python3 analysis/make_paper_figures.py
 """
 
 from __future__ import annotations
@@ -17,18 +21,20 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.optimize import curve_fit
 from scipy.special import erfc
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analysis"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from plot_g2 import SKIP_PTS, ROOT, load_run  # noqa: E402
 
-PAPER_FIG = Path(__file__).resolve().parent / "figures"
+REPO = Path(__file__).resolve().parents[1]
+PAPER_FIG = REPO / "paper" / "figures"
 PAPER_FIG.mkdir(parents=True, exist_ok=True)
+ANALYSIS_SCALING = Path(__file__).resolve().parent / "scaling"
+ANALYSIS_SCALING.mkdir(parents=True, exist_ok=True)
 
-CSV = Path(__file__).resolve().parents[1] / "analysis" / "erfc_fits" / "erfc_fit_parameters.csv"
+CSV = Path(__file__).resolve().parent / "erfc_fits" / "erfc_fit_parameters.csv"
+SLOPES_CSV = ANALYSIS_SCALING / "floated_slopes.csv"
 TAU_FIT_MAX = 0.1
-LAMBDA = 650e-9
 
 # Exemplars: mid-speed at 10°, 15°, 20°
 EXEMPLARS = [
@@ -169,8 +175,7 @@ def fig_exemplary_fits():
         r"Exemplary erfc$(\ln\tau)$ fits (first 10 lags omitted as afterpulsing)",
         fontsize=12,
     )
-    for ext in ("pdf", "png"):
-        fig.savefig(PAPER_FIG / f"fig_exemplary_fits.{ext}", dpi=200)
+    fig.savefig(PAPER_FIG / "fig_exemplary_fits.pdf")
     plt.close(fig)
     print("wrote fig_exemplary_fits")
 
@@ -222,13 +227,11 @@ def fig_inv_tau_vs_omega():
     ax.set_xlim(left=0)
     ax.set_ylim(bottom=0)
     fig.tight_layout()
-    for ext in ("pdf", "png"):
-        fig.savefig(PAPER_FIG / f"fig_inv_tau50_vs_omega.{ext}", dpi=200)
+    fig.savefig(PAPER_FIG / "fig_inv_tau50_vs_omega.pdf")
     plt.close(fig)
 
-    # save floated slopes for fig 3 and paper table
-    out = PAPER_FIG / "floated_slopes.csv"
-    with out.open("w", newline="") as f:
+    # Intermediate slopes for fig 3 (not part of the Overleaf tree)
+    with SLOPES_CSV.open("w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["angle_deg", "sin_theta", "slope", "dslope", "intercept", "dintercept"])
         for ang, m, dm, b, db in slope_info:
@@ -237,9 +240,7 @@ def fig_inv_tau_vs_omega():
 
 
 def fig_slopes_vs_sintheta():
-    # read floated slopes just written
-    path = PAPER_FIG / "floated_slopes.csv"
-    rows = list(csv.DictReader(path.open()))
+    rows = list(csv.DictReader(SLOPES_CSV.open()))
     angs = np.array([int(r["angle_deg"]) for r in rows])
     st = np.array([float(r["sin_theta"]) for r in rows])
     m = np.array([float(r["slope"]) for r in rows])
@@ -269,7 +270,6 @@ def fig_slopes_vs_sintheta():
 
     mask = angs > 0
     k, dk = weighted_line_through_origin(st[mask], m[mask], dm[mask])
-    # also floated line through non-zero angles
     mf, bf, dmf, dbf = weighted_line(st[mask], m[mask], dm[mask])
     xx = np.linspace(0, max(st.max(), 0.36), 80)
     ax.plot(
@@ -289,10 +289,12 @@ def fig_slopes_vs_sintheta():
     ax.set_xlim(left=-0.01)
     ax.set_ylim(bottom=0)
     fig.tight_layout()
-    for ext in ("pdf", "png"):
-        fig.savefig(PAPER_FIG / f"fig_slopes_vs_sintheta.{ext}", dpi=200)
+    fig.savefig(PAPER_FIG / "fig_slopes_vs_sintheta.pdf")
     plt.close(fig)
-    print(f"wrote fig_slopes_vs_sintheta  k={k:.3f}±{dk:.3f}  free: m={mf:.3f}±{dmf:.3f}, b={bf:.1f}±{dbf:.1f}")
+    print(
+        f"wrote fig_slopes_vs_sintheta  k={k:.3f}±{dk:.3f}  "
+        f"free: m={mf:.3f}±{dmf:.3f}, b={bf:.1f}±{dbf:.1f}"
+    )
 
 
 def main():
