@@ -4,6 +4,11 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 
+# Cursor local state; keep shared project rules
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
+
 # Tectonic / LaTeX intermediates (keep PDFs that are deliverables)
 paper/*.aux
 paper/*.bbl
