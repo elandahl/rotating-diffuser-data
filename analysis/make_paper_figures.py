@@ -188,7 +188,7 @@ def fig_inv_tau_vs_omega():
 
     cmap = {0: "C0", 10: "C1", 15: "C2", 20: "C3"}
     labels = {
-        0: r"small angle (nom.\ $0^\circ$)",
+        0: r"small angle (nom. $0^\circ$)",
         10: r"$10^\circ$",
         15: r"$15^\circ$",
         20: r"$20^\circ$",
@@ -241,18 +241,15 @@ def fig_inv_tau_vs_omega():
 
 def fig_slopes_vs_sintheta():
     rows = list(csv.DictReader(SLOPES_CSV.open()))
+    # Off-axis angles only (nominal 0° omitted from this figure)
+    rows = [r for r in rows if int(r["angle_deg"]) > 0]
     angs = np.array([int(r["angle_deg"]) for r in rows])
     st = np.array([float(r["sin_theta"]) for r in rows])
     m = np.array([float(r["slope"]) for r in rows])
     dm = np.array([float(r["dslope"]) for r in rows])
 
-    cmap = {0: "C0", 10: "C1", 15: "C2", 20: "C3"}
-    labels = {
-        0: r"small angle (nom.\ $0^\circ$)",
-        10: r"$10^\circ$",
-        15: r"$15^\circ$",
-        20: r"$20^\circ$",
-    }
+    cmap = {10: "C1", 15: "C2", 20: "C3"}
+    labels = {10: r"$10^\circ$", 15: r"$15^\circ$", 20: r"$20^\circ$"}
 
     fig, ax = plt.subplots(figsize=(5.6, 4.4))
     for i, ang in enumerate(angs):
@@ -268,33 +265,31 @@ def fig_slopes_vs_sintheta():
             zorder=3,
         )
 
-    mask = angs > 0
-    k, dk = weighted_line_through_origin(st[mask], m[mask], dm[mask])
-    mf, bf, dmf, dbf = weighted_line(st[mask], m[mask], dm[mask])
-    xx = np.linspace(0, max(st.max(), 0.36), 80)
+    mf, bf, dmf, dbf = weighted_line(st, m, dm)
+    xx = np.linspace(st.min() * 0.85, st.max() * 1.05, 80)
     ax.plot(
         xx,
-        k * xx,
+        mf * xx + bf,
         "k--",
         lw=1.4,
-        label=rf"$\propto\sin\theta$ (excl.\ $0^\circ$),  $k={k:.0f}\pm{dk:.0f}$",
+        label=(
+            rf"$m = ({mf:.0f}\pm{dmf:.0f})\,\sin\theta$"
+            + rf"$\;+\;({bf:.0f}\pm{dbf:.0f})$"
+        ),
         zorder=1,
     )
 
     ax.set_xlabel(r"$\sin\theta$")
-    ax.set_ylabel(r"slope $d(1/\tau_{50})/d\omega$  (floated intercept)")
+    ax.set_ylabel(r"slope $d(1/\tau_{50})/d\omega$")
     ax.set_title(r"Angle dependence of the $\omega$-scaling slope")
     ax.grid(True, ls=":", alpha=0.5)
     ax.legend(loc="upper left", fontsize=8)
-    ax.set_xlim(left=-0.01)
+    ax.set_xlim(left=0.12)
     ax.set_ylim(bottom=0)
     fig.tight_layout()
     fig.savefig(PAPER_FIG / "fig_slopes_vs_sintheta.pdf")
     plt.close(fig)
-    print(
-        f"wrote fig_slopes_vs_sintheta  k={k:.3f}±{dk:.3f}  "
-        f"free: m={mf:.3f}±{dmf:.3f}, b={bf:.1f}±{dbf:.1f}"
-    )
+    print(f"wrote fig_slopes_vs_sintheta  m={mf:.3f}±{dmf:.3f}, b={bf:.1f}±{dbf:.1f}")
 
 
 def main():

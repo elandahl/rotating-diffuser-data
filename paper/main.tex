@@ -46,8 +46,8 @@ diffuser angular displacement $\omega\tau$---not absolute time---governs
 decorrelation. The slope of that relation grows approximately in proportion to
 $\sin\theta$ for the well-aligned off-axis angles, in qualitative agreement with
 far-field models of rigidly rotating speckle. A nominal forward-scattering run
-still shows finite decay and does not follow the same $\sin\theta$ line, which we
-attribute to imperfect on-axis alignment. We summarize what is established by
+still shows finite decay; we omit it from the $\sin\theta$ fit because of
+imperfect on-axis alignment. We summarize what is established by
 these data, how it compares with classical rotating-diffuser literature, and what
 measurements would most usefully extend the result.
 \end{abstract}
@@ -257,8 +257,8 @@ At each fixed angle we then fit
 \end{equation}
 with a floated intercept $b$. Ideal playback-rate scaling predicts $b\approx 0$
 and a slope $m=1/\Delta\theta_c$. Finally we plot the floated slopes $m(\theta)$
-against $\sin\theta$ and compare them with a line through the origin fitted to
-the $10^\circ$, $15^\circ$, and $20^\circ$ points only.
+against $\sin\theta$ for the off-axis angles and fit a straight line with floated
+intercept.
 
 \section{Results}
 \label{sec:results}
@@ -331,35 +331,37 @@ $20^\circ$ & 1266.6 & 3.8 & -9.7 & 1.2 \\
 
 \subsection{Scaling with angle}
 
-Figure~\ref{fig:sin} shows the floated slopes versus $\sin\theta$. The
-$10^\circ$, $15^\circ$, and $20^\circ$ points fall close to a single line through the
-origin,
+Figure~\ref{fig:sin} shows the floated slopes versus $\sin\theta$ for
+$10^\circ$, $15^\circ$, and $20^\circ$ only. A weighted line with floated intercept gives
 \begin{equation}
   m(\theta)
-  \approx
-  k\sin\theta,
-  \qquad
-  k = (3.57\pm 0.11)\times 10^{3},
+  =
+  (4.12\pm 0.03)\times 10^{3}\,\sin\theta
+  -
+  (1.44\pm 0.07)\times 10^{2}.
 \end{equation}
-fitted while excluding the nominal $0^\circ$ point. That trend is exactly the
-angle factor expected from Eq.~\eqref{eq:jinc} if $\tau_{50}$ tracks the same
-combination $\omega\sin\theta$ that sets the jinc argument---even though the
-detailed jinc \emph{shape} is not required for the scaling test.
+The dominant trend is still an increase with $\sin\theta$, as expected if
+$\tau_{50}$ tracks the combination $\omega\sin\theta$ that appears in idealized
+far-field models~\cite{Churnside1982,Yura1998}---even though the detailed
+jinc$^2$ \emph{shape} is not required for this scaling test. The modest
+negative intercept shows that a pure through-origin $\propto\sin\theta$ law is
+only approximate over this angular window.
 
-The small-angle point lies well above the $\sin\theta=0$ prediction of zero
-slope. Finite decorrelation on axis is expected if the detector is not at true
+The nominal near-forward runs are omitted from Fig.~\ref{fig:sin}. They still
+exhibit finite decorrelation and a shallow $1/\tau_{50}$--$\omega$ slope
+(Table~\ref{tab:slopes}), which is expected if the detector is not at true
 forward scattering, if the beam is not centered on the rotation axis, or if
-boiling/wobble contribute angle-independent dynamics~\cite{Yoshimura1986}. Given
-the documented rough alignment of the $0^\circ$ runs, we interpret that point as a
-diagnostic of nonideal geometry rather than a failure of the off-axis scaling
-law.
+boiling/wobble contribute weakly angle-dependent
+dynamics~\cite{Yoshimura1986}. Given the documented rough alignment of those
+runs, we treat them as a geometry diagnostic rather than part of the
+$\sin\theta$ test.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.62\textwidth]{figures/fig_slopes_vs_sintheta.pdf}
-  \caption{Floated slopes from Fig.~\ref{fig:omega} versus $\sin\theta$. The
-  dashed line is a through-origin fit to the $10^\circ$, $15^\circ$, and $20^\circ$
-  points only; the nominal $0^\circ$ point is shown but excluded from that fit.}
+  \caption{Floated slopes from Fig.~\ref{fig:omega} versus $\sin\theta$ for
+  $10^\circ$, $15^\circ$, and $20^\circ$. The dashed line is a weighted linear fit with
+  floated intercept. The nominal small-angle runs are omitted.}
   \label{fig:sin}
 \end{figure}
 
@@ -368,7 +370,7 @@ law.
 
 \paragraph{Agreement.}
 The data affirm the playback-rate hypothesis of Eq.~\eqref{eq:omega_scaling} at
-fixed angle and the $\sin\theta$ growth of the rate constant for
+fixed angle and a clear $\sin\theta$ increase of the rate constant for
 $10^\circ$--$20^\circ$. Both are standard expectations from rotating-diffuser
 speckle theory~\cite{Churnside1982,Yura1998} and from earlier correlation-based
 velocimetry~\cite{Saleh1975,Takai1980}. The practical advance here is a compact,
@@ -398,10 +400,10 @@ honest treatment of a misaligned near-forward channel.
 
 Within the off-axis data set, prediction and measurement agree on two central
 points: (1)~decorrelation rates scale linearly with rotation speed at fixed
-angle, and (2)~those rates increase approximately proportionally to
-$\sin\theta$. A phenomenological erfc$(\ln\tau)$ fit provides stable $\tau_{50}$
-values for that test. The near-forward runs remind us that geometry must be
-controlled before interpreting small-angle residuals as intrinsic boiling.
+angle, and (2)~those rates increase with $\sin\theta$. A phenomenological
+erfc$(\ln\tau)$ fit provides stable $\tau_{50}$ values for that test. The
+near-forward runs remind us that geometry must be controlled before interpreting
+small-angle residuals as intrinsic boiling.
 
 The most impactful next experiments are, in our view:
 
